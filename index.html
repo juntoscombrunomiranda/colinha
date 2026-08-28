@@ -1,1 +1,999 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Monte sua Colinha — Bruno Miranda 12345</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+  /* ---- Fonte display da identidade (arquivo no repositório) ----
+     Ajuste o caminho abaixo caso a estrutura de pastas seja diferente.
+     Ex.: se colinha/index.html estiver na raiz do repo junto da fonte,
+     troque '../SaoTorpes.otf' por './SaoTorpes.otf'. */
+  @font-face{
+    font-family:'SaoTorpes';
+    src:url('../SaoTorpes.otf') format('opentype');
+    font-weight:400 900;
+    font-display:swap;
+  }
 
+  :root{
+    --navy:#123A6B;
+    --navy-dark:#0B2547;
+    --green:#12A64C;
+    --green-dark:#0C8A3C;
+    --bg:#F4F6F9;
+    --site-bg:#005BCB;
+    --white:#FFFFFF;
+    --ink:#123A6B;
+    --gray-border:#D7DEE7;
+    --radius-lg:26px;
+    --radius-md:16px;
+    --font-display:'SaoTorpes','Montserrat',sans-serif;
+    --font-body:'Montserrat',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:var(--font-body);
+    background:var(--site-bg);
+    color:var(--ink);
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  /* ================= ANIMATED BACKGROUND ================= */
+  .background-svg{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    pointer-events:none;
+  }
+  .out-top{ animation:rotate 20s linear infinite; transform-origin:13px 25px; }
+  .in-top{ animation:rotate 10s linear infinite; transform-origin:13px 25px; }
+  .out-bottom{ animation:rotate 25s linear infinite; transform-origin:84px 93px; }
+  .in-bottom{ animation:rotate 15s linear infinite; transform-origin:84px 93px; }
+  @keyframes rotate{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+  }
+
+  .stage{
+    position:relative;
+    z-index:1;
+    width:100%;
+    height:100dvh;
+    overflow:hidden;
+  }
+  .track{
+    display:flex;
+    height:100%;
+    width:100%;
+    transition:transform .55s cubic-bezier(.65,0,.35,1);
+    will-change:transform;
+  }
+  .screen{
+    flex:0 0 100%;
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    padding-top:max(20px, env(safe-area-inset-top));
+    padding-bottom:max(20px, env(safe-area-inset-bottom));
+  }
+  .panel{
+    width:100%;
+    max-width:440px;
+    background:var(--white);
+    border-radius:var(--radius-lg);
+    box-shadow:0 20px 50px rgba(11,37,71,0.14);
+    padding:clamp(22px,6vw,34px) clamp(18px,5vw,28px) 24px;
+    position:relative;
+    max-height:92dvh;
+    overflow-y:auto;
+  }
+
+  /* ---------- Intro ---------- */
+  .intro-stack{
+    width:100%;
+    max-width:440px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .intro-panel{
+    text-align:center;
+    width:100%;
+  }
+  .logo-wrap{
+    width:min(60vw, 240px);
+    margin:0 0 20px;
+    animation:pop-in .7s cubic-bezier(.34,1.56,.64,1) both, float 3.4s ease-in-out 1s infinite;
+  }
+  .logo-wrap img{
+    width:100%;
+    height:auto;
+    display:block;
+  }
+  @keyframes pop-in{
+    0%{opacity:0;transform:scale(.6);}
+    100%{opacity:1;transform:scale(1);}
+  }
+  @keyframes float{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-8px);}
+  }
+  .intro-title{
+    font-family:var(--font-body);
+    font-size:clamp(16px,4.6vw,20px);
+    font-weight:600;
+    line-height:1.5;
+    color:var(--navy-dark);
+    margin:6px 0 26px;
+    opacity:0;
+    animation:fade-up .6s ease .3s forwards;
+  }
+  .intro-title b{color:var(--navy);font-weight:800;}
+  .intro-title .hi{color:var(--green-dark);font-weight:800;}
+  @keyframes fade-up{
+    0%{opacity:0;transform:translateY(14px);}
+    100%{opacity:1;transform:translateY(0);}
+  }
+  .btn{
+    appearance:none;border:none;cursor:pointer;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:16px;
+    border-radius:999px;
+    padding:16px 30px;
+    width:100%;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:var(--white);
+    box-shadow:0 10px 24px rgba(18,166,76,0.35);
+  }
+  .btn-primary:disabled{
+    opacity:.4;
+    box-shadow:none;
+    cursor:not-allowed;
+  }
+  .btn-ghost{
+    background:transparent;
+    color:var(--navy);
+    font-size:14px;
+    padding:10px;
+    width:auto;
+  }
+  .intro-btn-wrap{
+    opacity:0;
+    animation:fade-up .6s ease .55s forwards;
+  }
+
+  /* ---------- Step chrome ---------- */
+  .step-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .back-btn{
+    background:none;border:none;cursor:pointer;
+    color:var(--navy);
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    padding:6px 4px 6px 0;
+    display:flex;align-items:center;gap:4px;
+  }
+  .progress{
+    display:flex;gap:6px;
+  }
+  .progress i{
+    display:block;
+    width:14px;height:5px;
+    border-radius:3px;
+    background:var(--gray-border);
+  }
+  .progress i.done{background:var(--green);}
+  .progress i.current{background:var(--navy);}
+
+  .step-eyebrow{
+    color:var(--green-dark);
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    margin:0 0 4px;
+  }
+  .step-title{
+    font-family:var(--font-display);
+    font-size:clamp(22px,6.5vw,27px);
+    font-weight:700;
+    color:var(--navy-dark);
+    margin:0 0 6px;
+    line-height:1.15;
+  }
+  .step-name{
+    font-family:var(--font-body);
+    font-size:16px;
+    font-weight:700;
+    color:var(--green);
+    margin:0 0 2px;
+  }
+  .step-sub{
+    font-size:13px;
+    font-weight:600;
+    color:var(--navy);
+    margin:0 0 16px;
+    opacity:.85;
+  }
+  .step-hint{
+    font-size:13px;
+    color:#5c6b80;
+    margin:0 0 18px;
+    font-weight:500;
+  }
+
+  /* ---------- Choice options (Federal / Governador) ---------- */
+  .choice-option{
+    display:flex;align-items:center;gap:12px;
+    border:2px solid var(--gray-border);
+    border-radius:var(--radius-md);
+    padding:13px 15px;
+    margin-bottom:10px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .choice-option.selected{
+    border-color:var(--green);
+    background:rgba(18,166,76,0.06);
+  }
+  .radio-dot{
+    width:20px;height:20px;
+    border-radius:50%;
+    border:2px solid var(--gray-border);
+    flex:0 0 auto;
+    position:relative;
+    transition:border-color .15s ease;
+  }
+  .choice-option.selected .radio-dot{border-color:var(--green);}
+  .choice-option.selected .radio-dot::after{
+    content:'';
+    position:absolute;inset:3px;
+    border-radius:50%;
+    background:var(--green);
+  }
+  .choice-label strong{
+    display:block;
+    font-size:14.5px;
+    color:var(--navy-dark);
+    font-weight:700;
+  }
+  .choice-label small{
+    display:block;
+    font-size:12px;
+    color:#5c6b80;
+    font-weight:500;
+    margin-top:1px;
+  }
+
+  /* ---------- Digit boxes ---------- */
+  .digit-row{
+    display:flex;
+    align-items:center;
+    gap:clamp(6px,2vw,10px);
+    margin:10px 0 4px;
+    flex-wrap:nowrap;
+  }
+  .digit-box{
+    width:clamp(38px,11vw,52px);
+    height:clamp(42px,12vw,58px);
+    border:2.5px solid var(--navy);
+    border-radius:12px;
+    text-align:center;
+    font-family:var(--font-body);
+    font-size:clamp(18px,5vw,24px);
+    font-weight:700;
+    color:var(--navy-dark);
+    background:var(--white);
+    caret-color:var(--green);
+    flex:0 0 auto;
+  }
+  .digit-box:focus{
+    outline:none;
+    border-color:var(--green);
+    box-shadow:0 0 0 3px rgba(18,166,76,0.18);
+  }
+  .digit-box.fixed{
+    background:#F3F6FA;
+    pointer-events:none;
+  }
+  .check-circle{
+    width:clamp(26px,7vw,34px);
+    height:clamp(26px,7vw,34px);
+    border-radius:50%;
+    background:var(--green);
+    display:flex;align-items:center;justify-content:center;
+    flex:0 0 auto;
+    opacity:0;
+    transform:scale(.5);
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .check-circle.show{opacity:1;transform:scale(1);}
+  .check-circle svg{width:60%;height:60%;}
+
+  .field-block{margin-bottom:14px;}
+  .custom-wrap{display:none;padding-left:2px;margin-top:2px;}
+  .custom-wrap.open{display:block;}
+
+  .step-actions{margin-top:20px;}
+
+  /* ---------- Result ---------- */
+  .result-panel{text-align:center;}
+  .result-title{
+    font-family:var(--font-display);
+    font-size:clamp(19px,5.5vw,22px);font-weight:700;color:var(--navy-dark);margin:0 0 4px;
+  }
+  .result-sub{
+    font-size:13px;color:#5c6b80;font-weight:500;margin:0 0 16px;
+  }
+  #previewWrap{
+    background:var(--bg);
+    border-radius:var(--radius-md);
+    padding:8px;
+    margin-bottom:16px;
+  }
+  #previewImg{
+    width:100%;
+    max-height:52dvh;
+    object-fit:contain;
+    border-radius:12px;
+    display:block;
+  }
+  .result-actions{display:flex;flex-direction:column;gap:10px;}
+
+  @media (max-width:360px){
+    .panel{padding:18px 14px 20px;}
+    .digit-row{gap:5px;}
+  }
+
+  @media (max-height:700px){
+    .logo-wrap{width:min(38vw, 150px);margin-bottom:12px;}
+    .intro-title{margin-top:2px;margin-bottom:18px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .logo-wrap{animation:none;}
+    .intro-title,.intro-btn-wrap{animation:none;opacity:1;}
+    .out-top,.in-top,.out-bottom,.in-bottom{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= ANIMATED BACKGROUND ================= -->
+<svg class="background-svg" preserveAspectRatio="xMidYMid slice" viewBox="10 10 80 80" aria-hidden="true">
+  <path fill="#0361d4" class="out-top" d="M37-5C25.1-14.7,5.7-19.1-9.2-10-28.5,1.8-32.7,31.1-19.8,49c15.5,21.5,52.6,22,67.2,2.3C59.4,35,53.7,8.5,37-5Z"/>
+  <path fill="#005bcb" class="in-top" d="M20.6,4.1C11.6,1.5-1.9,2.5-8,11.2-16.3,23.1-8.2,45.6,7.4,50S42.1,38.9,41,24.5C40.2,14.1,29.4,6.6,20.6,4.1Z"/>
+  <path fill="#0361d4" class="out-bottom" d="M105.9,48.6c-12.4-8.2-29.3-4.8-39.4.8-23.4,12.8-37.7,51.9-19.1,74.1s63.9,15.3,76-5.6c7.6-13.3,1.8-31.1-2.3-43.8C117.6,63.3,114.7,54.3,105.9,48.6Z"/>
+  <path fill="#005bcb" class="in-bottom" d="M102,67.1c-9.6-6.1-22-3.1-29.5,2-15.4,10.7-19.6,37.5-7.6,47.8s35.9,3.9,44.5-12.5C115.5,92.6,113.9,74.6,102,67.1Z"/>
+</svg>
+
+<div class="stage">
+  <div class="track" id="track">
+
+    <!-- ============ INTRO ============ -->
+    <section class="screen">
+      <div class="intro-stack">
+        <div class="logo-wrap">
+          <img src="assets/Logo-Bruno-Miranda.gif" alt="Bruno Miranda">
+        </div>
+        <div class="panel intro-panel">
+          <p class="intro-title">
+            No dia <b>3 de outubro</b>, você vai votar em <b>6 candidatos(as)</b>: Deputado(a) Federal, Deputado Estadual, 2 Senadores, Governador e Presidente.<br>
+            <span class="hi">Crie sua colinha digital e leve com você!</span>
+          </p>
+          <div class="intro-btn-wrap">
+            <button class="btn btn-primary" id="startBtn">Gerar Colinha</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 1: FEDERAL ============ -->
+    <section class="screen">
+      <div class="panel">
+        <div class="step-top">
+          <button class="back-btn" data-back>‹ Voltar</button>
+          <div class="progress" id="progress-1"></div>
+        </div>
+        <p class="step-eyebrow">Passo 1 de 6</p>
+        <h2 class="step-title">Deputado Federal</h2>
+        <p class="step-hint">Escolha em quem você vai votar para deputado federal.</p>
+
+        <div class="choice-option selected" data-choice="federal" data-value="default">
+          <div class="radio-dot"></div>
+          <div class="choice-label"><strong>Dr. Mário Heringer</strong></div>
+        </div>
+        <div class="choice-option" data-choice="federal" data-value="custom">
+          <div class="radio-dot"></div>
+          <div class="choice-label"><strong>Outro candidato</strong><small>Digite o número</small></div>
+        </div>
+
+        <div class="field-block">
+          <div class="digit-row" id="federal-fixed"></div>
+          <div class="custom-wrap" id="federal-custom-wrap">
+            <div class="digit-row" id="federal-custom"></div>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-primary" data-next="1">Próximo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 2: ESTADUAL (fixo) ============ -->
+    <section class="screen">
+      <div class="panel">
+        <div class="step-top">
+          <button class="back-btn" data-back>‹ Voltar</button>
+          <div class="progress" id="progress-2"></div>
+        </div>
+        <p class="step-eyebrow">Passo 2 de 6</p>
+        <h2 class="step-title">Deputado Estadual</h2>
+        <p class="step-name">Bruno Miranda</p>
+        <p class="step-hint">Esse voto já vem certo. 😉</p>
+        <div class="digit-row" id="estadual-fixed"></div>
+        <div class="step-actions">
+          <button class="btn btn-primary" data-next="2">Próximo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 3: SENADOR 1 ============ -->
+    <section class="screen">
+      <div class="panel">
+        <div class="step-top">
+          <button class="back-btn" data-back>‹ Voltar</button>
+          <div class="progress" id="progress-3"></div>
+        </div>
+        <p class="step-eyebrow">Passo 3 de 6</p>
+        <h2 class="step-title">Senador 1</h2>
+        <p class="step-hint">Digite o número do candidato a senador (1º voto).</p>
+        <div class="digit-row" id="senador1-input"></div>
+        <div class="step-actions">
+          <button class="btn btn-primary" data-next="3" disabled>Próximo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 4: SENADOR 2 ============ -->
+    <section class="screen">
+      <div class="panel">
+        <div class="step-top">
+          <button class="back-btn" data-back>‹ Voltar</button>
+          <div class="progress" id="progress-4"></div>
+        </div>
+        <p class="step-eyebrow">Passo 4 de 6</p>
+        <h2 class="step-title">Senador 2</h2>
+        <p class="step-hint">Digite o número do candidato a senador (2º voto).</p>
+        <div class="digit-row" id="senador2-input"></div>
+        <div class="step-actions">
+          <button class="btn btn-primary" data-next="4" disabled>Próximo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 5: GOVERNADOR ============ -->
+    <section class="screen">
+      <div class="panel">
+        <div class="step-top">
+          <button class="back-btn" data-back>‹ Voltar</button>
+          <div class="progress" id="progress-5"></div>
+        </div>
+        <p class="step-eyebrow">Passo 5 de 6</p>
+        <h2 class="step-title">Governador</h2>
+        <p class="step-hint">Escolha em quem você vai votar para governador.</p>
+
+        <div class="choice-option selected" data-choice="governador" data-value="default">
+          <div class="radio-dot"></div>
+          <div class="choice-label"><strong>Alexandre Kalil</strong><small>Vice Carlos Mosconi</small></div>
+        </div>
+        <div class="choice-option" data-choice="governador" data-value="custom">
+          <div class="radio-dot"></div>
+          <div class="choice-label"><strong>Outro candidato</strong><small>Digite o número</small></div>
+        </div>
+
+        <div class="field-block">
+          <div class="digit-row" id="governador-fixed"></div>
+          <div class="custom-wrap" id="governador-custom-wrap">
+            <div class="digit-row" id="governador-custom"></div>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-primary" data-next="5">Próximo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 6: PRESIDENTE ============ -->
+    <section class="screen">
+      <div class="panel">
+        <div class="step-top">
+          <button class="back-btn" data-back>‹ Voltar</button>
+          <div class="progress" id="progress-6"></div>
+        </div>
+        <p class="step-eyebrow">Passo 6 de 6</p>
+        <h2 class="step-title">Presidente</h2>
+        <p class="step-hint">Digite o número do candidato a presidente.</p>
+        <div class="digit-row" id="presidente-input"></div>
+        <div class="step-actions">
+          <button class="btn btn-primary" id="generateBtn" disabled>Gerar Colinha</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section class="screen">
+      <div class="panel result-panel">
+        <p class="result-title">Sua colinha está pronta!</p>
+        <p class="result-sub">Salve a imagem e leve com você no dia da votação.</p>
+        <div id="previewWrap"><img id="previewImg" alt="Colinha gerada"></div>
+        <div class="result-actions">
+          <button class="btn btn-primary" id="downloadBtn">Baixar imagem</button>
+          <button class="btn btn-ghost" id="restartBtn">Criar outra colinha</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Hidden canvas used to render the final 1080x1920 image -->
+<canvas id="renderCanvas" width="1080" height="1920" style="display:none;"></canvas>
+
+<script>
+/* =========================================================
+   CONFIG — edite aqui se algum nome/número mudar
+========================================================= */
+const CONFIG = {
+  federal:   { name:'Dr. Mário Heringer', number:'1234' },
+  estadual:  { name:'Bruno Miranda',      number:'12345' },
+  governador:{ name:'Alexandre Kalil', sub:'Vice Carlos Mosconi', number:'12' },
+  colors: {
+    navy:'#123A6B', navyDark:'#0B2547', green:'#12A64C', greenDark:'#0C8A3C',
+    bg:'#F4F6F9', white:'#FFFFFF'
+  },
+  fontDisplay:'SaoTorpes',
+  fontBody:'Montserrat',
+  bgImageSrc:'assets/background-colinha.png'
+};
+
+/* Pré-carrega a imagem de fundo usada na colinha final (1080x1920) */
+const bgImage = new Image();
+let bgImageReady = false;
+bgImage.onload = () => { bgImageReady = true; };
+bgImage.src = CONFIG.bgImageSrc;
+function ensureBgImageLoaded(){
+  return new Promise((resolve)=>{
+    if(bgImageReady || bgImage.complete){ resolve(); return; }
+    bgImage.addEventListener('load', ()=>resolve(), { once:true });
+    bgImage.addEventListener('error', ()=>resolve(), { once:true });
+  });
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+const track = document.getElementById('track');
+const totalScreens = 8; // intro + 6 steps + result
+let current = 0;
+
+function goTo(index){
+  current = Math.max(0, Math.min(totalScreens - 1, index));
+  track.style.transform = `translateX(-${current * 100}%)`;
+}
+document.getElementById('startBtn').addEventListener('click', () => goTo(1));
+document.querySelectorAll('[data-back]').forEach(btn=>{
+  btn.addEventListener('click', () => goTo(current - 1));
+});
+
+/* =========================================================
+   DIGIT BOX HELPERS
+========================================================= */
+function makeFixedDigits(container, value){
+  container.innerHTML = '';
+  [...value].forEach(ch=>{
+    const box = document.createElement('div');
+    box.className = 'digit-box fixed';
+    box.style.display = 'flex';
+    box.style.alignItems = 'center';
+    box.style.justifyContent = 'center';
+    box.textContent = ch;
+    container.appendChild(box);
+  });
+  const check = document.createElement('div');
+  check.className = 'check-circle show';
+  check.innerHTML = checkSvg();
+  container.appendChild(check);
+}
+
+function makeEditableDigits(container, length, onChange){
+  container.innerHTML = '';
+  const inputs = [];
+  for(let i=0;i<length;i++){
+    const inp = document.createElement('input');
+    inp.className = 'digit-box';
+    inp.setAttribute('inputmode','numeric');
+    inp.setAttribute('maxlength','1');
+    inp.setAttribute('autocomplete','off');
+    inputs.push(inp);
+    container.appendChild(inp);
+    inp.addEventListener('input', ()=>{
+      inp.value = inp.value.replace(/[^0-9]/g,'').slice(0,1);
+      if(inp.value && i < length-1){ inputs[i+1].focus(); }
+      onChange(inputs.map(x=>x.value).join(''));
+    });
+    inp.addEventListener('keydown', (e)=>{
+      if(e.key === 'Backspace' && !inp.value && i>0){ inputs[i-1].focus(); }
+    });
+  }
+  const check = document.createElement('div');
+  check.className = 'check-circle';
+  check.innerHTML = checkSvg();
+  container.appendChild(check);
+
+  return { inputs, check };
+}
+
+function checkSvg(){
+  return '<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+/* =========================================================
+   STATE
+========================================================= */
+const data = {
+  federal:    { mode:'default', number:CONFIG.federal.number, name:CONFIG.federal.name },
+  estadual:   { number:CONFIG.estadual.number, name:CONFIG.estadual.name },
+  senador1:   { number:'' },
+  senador2:   { number:'' },
+  governador: { mode:'default', number:CONFIG.governador.number, name:CONFIG.governador.name, sub:CONFIG.governador.sub },
+  presidente: { number:'' }
+};
+
+/* ---- Progress dots ---- */
+for(let s=1;s<=6;s++){
+  const wrap = document.getElementById('progress-'+s);
+  for(let i=1;i<=6;i++){
+    const dot = document.createElement('i');
+    if(i < s) dot.className = 'done';
+    else if(i === s) dot.className = 'current';
+    wrap.appendChild(dot);
+  }
+}
+
+/* ---- Step 1: Federal ---- */
+makeFixedDigits(document.getElementById('federal-fixed'), CONFIG.federal.number);
+const federalCustom = makeEditableDigits(document.getElementById('federal-custom'), 4, (val)=>{
+  data.federal.number = val;
+  toggleCheck(federalCustom.check, val.length===4);
+  updateNextState(1);
+});
+setupChoice('federal', (value)=>{
+  data.federal.mode = value;
+  if(value === 'default'){
+    data.federal.number = CONFIG.federal.number;
+    data.federal.name = CONFIG.federal.name;
+  } else {
+    data.federal.name = null;
+    data.federal.number = federalCustom.inputs.map(i=>i.value).join('');
+  }
+  document.getElementById('federal-fixed').style.display = value==='default' ? 'flex':'none';
+  document.getElementById('federal-custom-wrap').classList.toggle('open', value==='custom');
+  updateNextState(1);
+});
+
+/* ---- Step 2: Estadual (fixo) ---- */
+makeFixedDigits(document.getElementById('estadual-fixed'), CONFIG.estadual.number);
+
+/* ---- Step 3: Senador 1 ---- */
+const s1 = makeEditableDigits(document.getElementById('senador1-input'), 3, (val)=>{
+  data.senador1.number = val;
+  toggleCheck(s1.check, val.length===3);
+  updateNextState(3);
+});
+
+/* ---- Step 4: Senador 2 ---- */
+const s2 = makeEditableDigits(document.getElementById('senador2-input'), 3, (val)=>{
+  data.senador2.number = val;
+  toggleCheck(s2.check, val.length===3);
+  updateNextState(4);
+});
+
+/* ---- Step 5: Governador ---- */
+makeFixedDigits(document.getElementById('governador-fixed'), CONFIG.governador.number);
+const govCustom = makeEditableDigits(document.getElementById('governador-custom'), 2, (val)=>{
+  data.governador.number = val;
+  toggleCheck(govCustom.check, val.length===2);
+  updateNextState(5);
+});
+setupChoice('governador', (value)=>{
+  data.governador.mode = value;
+  if(value === 'default'){
+    data.governador.number = CONFIG.governador.number;
+    data.governador.name = CONFIG.governador.name;
+    data.governador.sub = CONFIG.governador.sub;
+  } else {
+    data.governador.name = null;
+    data.governador.sub = null;
+    data.governador.number = govCustom.inputs.map(i=>i.value).join('');
+  }
+  document.getElementById('governador-fixed').style.display = value==='default' ? 'flex':'none';
+  document.getElementById('governador-custom-wrap').classList.toggle('open', value==='custom');
+  updateNextState(5);
+});
+
+/* ---- Step 6: Presidente ---- */
+const pres = makeEditableDigits(document.getElementById('presidente-input'), 2, (val)=>{
+  data.presidente.number = val;
+  toggleCheck(pres.check, val.length===2);
+  updateGenerateState();
+});
+
+function toggleCheck(el, on){ el.classList.toggle('show', on); }
+
+/* ---- Choice option click handling ---- */
+function setupChoice(field, cb){
+  const options = document.querySelectorAll(`.choice-option[data-choice="${field}"]`);
+  options.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      options.forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      cb(opt.dataset.value);
+    });
+  });
+}
+
+/* ---- Next button enable/disable ---- */
+function updateNextState(stepNum){
+  const btn = document.querySelector(`[data-next="${stepNum}"]`);
+  if(!btn) return;
+  let ok = true;
+  if(stepNum===1) ok = data.federal.mode==='default' || data.federal.number.length===4;
+  if(stepNum===3) ok = data.senador1.number.length===3;
+  if(stepNum===4) ok = data.senador2.number.length===3;
+  if(stepNum===5) ok = data.governador.mode==='default' || data.governador.number.length===2;
+  btn.disabled = !ok;
+}
+function updateGenerateState(){
+  document.getElementById('generateBtn').disabled = data.presidente.number.length !== 2;
+}
+updateNextState(1);updateNextState(3);updateNextState(4);updateNextState(5);
+
+document.querySelectorAll('[data-next]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const step = parseInt(btn.dataset.next,10);
+    goTo(step + 1);
+  });
+});
+
+/* =========================================================
+   IMAGE GENERATION (Canvas)
+========================================================= */
+document.getElementById('generateBtn').addEventListener('click', async ()=>{
+  await Promise.all([ensureFontsLoaded(), ensureBgImageLoaded()]);
+  renderImage();
+  goTo(7);
+});
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  goTo(0);
+});
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const canvas = document.getElementById('renderCanvas');
+  const link = document.createElement('a');
+  link.download = 'colinha-bruno-miranda.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+async function ensureFontsLoaded(){
+  const specs = [
+    `800 40px "${CONFIG.fontDisplay}"`,
+    `700 42px "${CONFIG.fontDisplay}"`,
+    `700 36px "${CONFIG.fontBody}"`,
+    `700 46px "${CONFIG.fontBody}"`,
+    `700 26px "${CONFIG.fontBody}"`
+  ];
+  try{
+    await Promise.all(specs.map(s=>document.fonts.load(s)));
+    await document.fonts.ready;
+  }catch(e){ /* segue com a fonte de fallback caso algo falhe */ }
+}
+
+function renderImage(){
+  const c = document.getElementById('renderCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const col = CONFIG.colors;
+
+  // ---- background ----
+  if(bgImageReady && bgImage.naturalWidth){
+    // a imagem já vem no tamanho exato do story (1080x1920)
+    ctx.drawImage(bgImage, 0, 0, W, H);
+  } else {
+    // fallback caso a imagem não carregue por algum motivo
+    ctx.fillStyle = col.bg;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // ---- card ----
+  const cardX = 70, cardW = W - cardX*2;
+  const cardTop = 190;
+  const innerPad = 64;
+
+  const sections = buildSections();
+  let cursorY = cardTop + 130;
+  const sectionYs = [];
+  sections.forEach(sec=>{
+    sectionYs.push(cursorY);
+    cursorY += sectionHeight(sec);
+  });
+  const cardBottom = cursorY + 50;
+  const cardH = cardBottom - cardTop;
+
+  roundRect(ctx, cardX, cardTop, cardW, cardH, 44);
+  ctx.fillStyle = col.white;
+  ctx.shadowColor = 'rgba(11,37,71,0.18)';
+  ctx.shadowBlur = 50;
+  ctx.shadowOffsetY = 18;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+
+  // ---- header pill ----
+  const pillW = 780, pillH = 92;
+  const pillX = W/2 - pillW/2, pillY = cardTop - pillH/2;
+  roundRect(ctx, pillX, pillY, pillW, pillH, pillH/2);
+  ctx.fillStyle = col.navy;
+  ctx.fill();
+  ctx.fillStyle = col.white;
+  ctx.font = `800 38px "${CONFIG.fontDisplay}", "${CONFIG.fontBody}", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('LEVE A COLINHA COM VOCÊ!', W/2, pillY + pillH/2 + 2);
+
+  // ---- sections ----
+  const leftX = cardX + innerPad;
+  sections.forEach((sec, i)=>{
+    drawSection(ctx, sec, leftX, sectionYs[i], col);
+  });
+
+  // ---- preview ----
+  document.getElementById('previewImg').src = c.toDataURL('image/png');
+}
+
+function buildSections(){
+  const list = [];
+  list.push({
+    title:'Deputado Federal',
+    name: data.federal.name,
+    sub: null,
+    digits: data.federal.number
+  });
+  list.push({
+    title:'Deputado Estadual',
+    name: data.estadual.name,
+    sub: null,
+    digits: data.estadual.number
+  });
+  list.push({ title:'Senador 1', name:null, sub:null, digits:data.senador1.number });
+  list.push({ title:'Senador 2', name:null, sub:null, digits:data.senador2.number });
+  list.push({
+    title:'Governador',
+    name: data.governador.name,
+    sub: data.governador.sub,
+    digits: data.governador.number
+  });
+  list.push({ title:'Presidente', name:null, sub:null, digits:data.presidente.number });
+  return list;
+}
+
+function sectionHeight(sec){
+  let h = 56; // title
+  if(sec.name) h += 46;
+  if(sec.sub) h += 34;
+  h += 14;
+  h += 96;
+  h += 58;
+  return h;
+}
+
+function drawSection(ctx, sec, x, y, col){
+  let cy = y;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.fillStyle = col.navy;
+  ctx.font = `700 42px "${CONFIG.fontDisplay}", "${CONFIG.fontBody}", sans-serif`;
+  ctx.fillText(sec.title, x, cy);
+  cy += 6;
+
+  if(sec.name){
+    cy += 46;
+    ctx.fillStyle = col.green;
+    ctx.font = `700 36px "${CONFIG.fontBody}", sans-serif`;
+    ctx.fillText(sec.name, x, cy);
+  }
+  if(sec.sub){
+    cy += 34;
+    ctx.fillStyle = col.navy;
+    ctx.font = `700 26px "${CONFIG.fontBody}", sans-serif`;
+    ctx.fillText(sec.sub, x, cy);
+  }
+
+  cy += 44;
+  const boxSize = 90, gap = 16;
+  let bx = x;
+  const digits = (sec.digits || '').split('');
+  digits.forEach(d=>{
+    roundRect(ctx, bx, cy, boxSize, boxSize, 16);
+    ctx.fillStyle = col.white;
+    ctx.fill();
+    ctx.lineWidth = 4.5;
+    ctx.strokeStyle = col.navy;
+    roundRect(ctx, bx, cy, boxSize, boxSize, 16);
+    ctx.stroke();
+
+    ctx.fillStyle = col.navy;
+    ctx.font = `700 46px "${CONFIG.fontBody}", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d, bx + boxSize/2, cy + boxSize/2 + 4);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+
+    bx += boxSize + gap;
+  });
+
+  const checkD = 58;
+  const checkX = bx + 10;
+  const checkY = cy + boxSize/2 - checkD/2;
+  ctx.beginPath();
+  ctx.arc(checkX + checkD/2, checkY + checkD/2, checkD/2, 0, Math.PI*2);
+  ctx.fillStyle = col.green;
+  ctx.fill();
+  ctx.strokeStyle = col.white;
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(checkX + checkD*0.28, checkY + checkD*0.53);
+  ctx.lineTo(checkX + checkD*0.44, checkY + checkD*0.70);
+  ctx.lineTo(checkX + checkD*0.74, checkY + checkD*0.32);
+  ctx.stroke();
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y,   x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x,   y+h, r);
+  ctx.arcTo(x,   y+h, x,   y,   r);
+  ctx.arcTo(x,   y,   x+w, y,   r);
+  ctx.closePath();
+}
+</script>
+</body>
+</html>
