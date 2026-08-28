@@ -272,19 +272,28 @@ function renderImage(){
     ctx.fillRect(0,0,W,H);
   }
 
-  // ---- card ----
+  // ---- card (calculado para ficar centralizado verticalmente) ----
   const cardX = 70, cardW = W - cardX*2;
-  const cardTop = 190;
   const innerPad = 64;
+  const pillW = 780, pillH = 92;
+  const topPad = 130;   // espaço entre o topo do card e a 1ª seção
+  const bottomPad = 50; // espaço entre a última seção e o fim do card
 
   const sections = buildSections();
-  let cursorY = cardTop + 130;
+  const contentH = sections.reduce((sum, sec) => sum + sectionHeight(sec), 0);
+
+  // altura total do bloco visível: metade da pílula (que fica pra fora do
+  // card) + preenchimento do topo + conteúdo + preenchimento de baixo
+  const blockH = (pillH/2) + topPad + contentH + bottomPad;
+  const cardTop = ((H - blockH) / 2) + (pillH/2);
+
+  let cursorY = cardTop + topPad;
   const sectionYs = [];
   sections.forEach(sec=>{
     sectionYs.push(cursorY);
     cursorY += sectionHeight(sec);
   });
-  const cardBottom = cursorY + 50;
+  const cardBottom = cursorY + bottomPad;
   const cardH = cardBottom - cardTop;
 
   roundRect(ctx, cardX, cardTop, cardW, cardH, 44);
@@ -296,7 +305,6 @@ function renderImage(){
   ctx.shadowColor = 'transparent';
 
   // ---- header pill ----
-  const pillW = 780, pillH = 92;
   const pillX = W/2 - pillW/2, pillY = cardTop - pillH/2;
   roundRect(ctx, pillX, pillY, pillW, pillH, pillH/2);
   ctx.fillStyle = col.navy;
