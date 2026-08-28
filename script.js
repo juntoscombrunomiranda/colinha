@@ -11,7 +11,8 @@ const CONFIG = {
   },
   fontDisplay:'SaoTorpes',
   fontBody:'Montserrat',
-  bgImageSrc:'assets/background-colinha.png'
+  bgImageSrc:'assets/background-colinha.png',
+  thumbImageSrc:'assets/Thumbs-up.png'
 };
 
 /* Pré-carrega a imagem de fundo usada na colinha final (1080x1920) */
@@ -24,6 +25,19 @@ function ensureBgImageLoaded(){
     if(bgImageReady || bgImage.complete){ resolve(); return; }
     bgImage.addEventListener('load', ()=>resolve(), { once:true });
     bgImage.addEventListener('error', ()=>resolve(), { once:true });
+  });
+}
+
+/* Pré-carrega a ilustração do polegar (thumbs-up) usada na colinha final */
+const thumbImage = new Image();
+let thumbImageReady = false;
+thumbImage.onload = () => { thumbImageReady = true; };
+thumbImage.src = CONFIG.thumbImageSrc;
+function ensureThumbImageLoaded(){
+  return new Promise((resolve)=>{
+    if(thumbImageReady || thumbImage.complete){ resolve(); return; }
+    thumbImage.addEventListener('load', ()=>resolve(), { once:true });
+    thumbImage.addEventListener('error', ()=>resolve(), { once:true });
   });
 }
 
@@ -227,7 +241,7 @@ document.querySelectorAll('[data-next]').forEach(btn=>{
    IMAGE GENERATION (Canvas)
 ========================================================= */
 document.getElementById('generateBtn').addEventListener('click', async ()=>{
-  await Promise.all([ensureFontsLoaded(), ensureBgImageLoaded()]);
+  await Promise.all([ensureFontsLoaded(), ensureBgImageLoaded(), ensureThumbImageLoaded()]);
   renderImage();
   goTo(7);
 });
@@ -320,6 +334,21 @@ function renderImage(){
   sections.forEach((sec, i)=>{
     drawSection(ctx, sec, leftX, sectionYs[i], col);
   });
+
+  // ---- ilustração "joinha" (sobreposta no canto inferior direito) ----
+  if(thumbImageReady && thumbImage.naturalWidth){
+    const presidenteY = sectionYs[sectionYs.length - 1]; // topo da seção Presidente
+    const presidenteBoxBottom = presidenteY + 50 + 90;   // baseline do título (+50) + caixa (90)
+
+    const thumbW = cardW * 0.40;
+    const thumbH = thumbW * (thumbImage.naturalHeight / thumbImage.naturalWidth);
+    const thumbRight = cardX + cardW + 8;   // vaza um pouco pra fora da borda direita do card
+    const thumbBottom = presidenteBoxBottom + 36;
+    const thumbLeft = thumbRight - thumbW;
+    const thumbTop = thumbBottom - thumbH;
+
+    ctx.drawImage(thumbImage, thumbLeft, thumbTop, thumbW, thumbH);
+  }
 
   // ---- preview ----
   document.getElementById('previewImg').src = c.toDataURL('image/png');
